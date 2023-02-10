@@ -38,8 +38,10 @@ function message($body, $header = 'Error', $type = 'error', $continues = false)
     }
 }
 
+$commandsFolder = getenv('COMMANDS_FOLDER') ?: './Commands';
+
 // include commands
-foreach (glob("./Commands/*.php") as $filename) {
+foreach (glob("{$commandsFolder}/*.php") as $filename) {
     include $filename;
 }
 
