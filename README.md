@@ -33,7 +33,7 @@ Receiving on handle function of Command
 ```php
 $param1 = $this->input('param1'); // Returns --param1 value or null
 
-$param2 = $input->('param2', 'Default Value');  // Returns param2 or default value specified
+$param2 = $this->input('param2', 'Default Value');  // Returns param2 or default value specified
 ```
 
 ### Examples
