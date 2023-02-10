@@ -1,0 +1,76 @@
+#!/usr/bin/env php
+<?php
+// get named params
+function get_opt()
+{
+    $opts = array();
+    foreach ($_SERVER["argv"] as $k => $a) {
+        if (preg_match('@\-\-(.+)=(.+)@', $a, $m))
+            $opts[$m[1]] = $m[2];
+        elseif (preg_match('@\-\-(.+)@', $a, $m))
+            $opts[$m[1]] = true;
+        elseif (preg_match('@\-(.+)=(.+)@', $a, $m))
+            $opts[$m[1]] = $m[2];
+        elseif (preg_match('@\-(.+)@', $a, $m))
+            $opts[$m[1]] = true;
+        else
+            $opts[$k] = $a;
+    }
+    return $opts;
+}
+
+$args = get_opt();
+
+// default message formatter
+function message($body, $header = 'Error', $type = 'error', $continues = false)
+{
+    $types = [
+        'error' => "\e[91m ",
+        'warning' => "\e[93m ",
+        'info' => "\e[94m ",
+    ];
+
+    $color = isset($types[$type]) ? $types[$type] : '';
+    echo "{$color}[{$header}] \n {$body}\e[0m\n";
+
+    if (!$continues) {
+        exit;
+    }
+}
+
+// include commands
+foreach (glob("./Commands/*.php") as $filename) {
+    include $filename;
+}
+
+$commands = [];
+
+// Register Classes
+foreach (get_declared_classes() as $class) {
+    if (is_subclass_of($class, 'Command')) {
+        $instance = new $class($args);
+
+        if (!isset($instance->signature) || empty($instance->signature)) {
+            message("Command $class needs to has a valid signature string");
+        }
+
+        if (!method_exists($instance, 'handle')) {
+            message("$class is not a valid Command, please add a handle() method");
+        }
+
+        $commands[$instance->signature] = $instance;
+    }
+}
+
+if (!isset($args[1]) || !isset($commands[$args[1]])) {
+    message('Please write a valid command', 'Warning', 'warning');
+}
+
+
+$command = $commands[$args[1]];
+
+if (isset($args['h'])) {
+    message(($command->description ?: ''), $command->signature, 'info');
+}
+
+$command->handle();
