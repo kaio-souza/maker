@@ -1,5 +1,5 @@
 ## MAKER
-Maker is a command line interface inspired on **Laravel Artisan**, that's can provides a number of helpful commands that can assist you while you build your application
+Maker is a command line interface inspired in **Laravel Artisan**, that's can provides a number of helpful commands that can assist you while you build your application
 
 ### How to create new Commands
 In the folder `Commands` create a class and extends `Command`,
